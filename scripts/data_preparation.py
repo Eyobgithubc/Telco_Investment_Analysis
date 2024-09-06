@@ -19,7 +19,7 @@ def clean_data(data):
     data = data.drop_duplicates()
     
     
-    data = data.dropna()
+    data = data.fillna(0)
  
     def detect_outliers(df, columns):
         for col in columns:
