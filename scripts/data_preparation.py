@@ -11,6 +11,36 @@ def load_data(table_name):
     else:
         raise Exception("Failed to connect to the database.")
 
+import pandas as pd
+import numpy as np
+
 def clean_data(data):
-    data = data.dropna()  # Drop rows with missing values
+    
+    data = data.drop_duplicates()
+    
+    
+    data = data.dropna()
+ 
+    def detect_outliers(df, columns):
+        for col in columns:
+        
+            Q1 = df[col].quantile(0.25)
+            Q3 = df[col].quantile(0.75)
+            IQR = Q3 - Q1
+            
+            
+            lower_bound = Q1 - 1.5 * IQR
+            upper_bound = Q3 + 1.5 * IQR
+            
+        
+            df = df[(df[col] >= lower_bound) & (df[col] <= upper_bound)]
+        return df
+    
+   
+    numerical_columns = data.select_dtypes(include=[np.number]).columns.tolist()
+    
+
+    data = detect_outliers(data, numerical_columns)
+    
     return data
+
