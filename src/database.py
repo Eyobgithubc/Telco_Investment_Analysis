@@ -1,26 +1,26 @@
-import psycopg2
-from psycopg2 import OperationalError
+from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 
 def get_connection():
-    hostname='localhost'
-    database='telecom_db'
-    username='postgres'
-    pwd='2525'
-    port_id='5432'
-   
+    hostname = 'localhost'
+    database = 'telecom_db'
+    username = 'postgres'
+    pwd = '2525'
+    port_id = '5432'
+
+    # Construct the database URL required by SQLAlchemy
+    db_url = f'postgresql+psycopg2://{username}:{pwd}@{hostname}:{port_id}/{database}'
+
     try:
-        connection = psycopg2.connect(
-            
-            host=hostname,
-            dbname=database,
-            user=username,
-            password=pwd,
-            port=port_id
-            
-        )
+        # Create an SQLAlchemy engine
+        engine = create_engine(db_url)
         
-        print("Connection successful")
-        return connection
+        # Test the connection by establishing it temporarily
+        with engine.connect() as connection:
+            print("Connection successful")
+        
+        # Return the engine to be used with pandas
+        return engine
     except OperationalError as e:
         print("OperationalError:", e)
     except Exception as e:
