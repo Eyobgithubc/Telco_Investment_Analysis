@@ -6,7 +6,7 @@ sys.path.append(r'C:/Users/teeyob/Telco_Investment_Analysis/src')
 
 from database import get_connection
 
-def load_data(table_name):
+def load_data(xdr_data):
     engine = get_connection()
     if engine is not None:
         query = f'SELECT * FROM xdr_data'
@@ -16,12 +16,16 @@ def load_data(table_name):
         raise Exception("Failed to connect to the database.")
 
 def clean_data(data):
-    # Remove duplicates
+    # Check that data is a DataFrame
+    if not isinstance(data, pd.DataFrame):
+        raise TypeError("Input data should be a pandas DataFrame.")
+    
+    # Drop duplicates
     data = data.drop_duplicates()
-    # Fill missing values with zero
+    
+    # Fill missing values
     data = data.fillna(0)
 
-    # Function to detect and remove outliers based on IQR
     def detect_outliers(df, columns):
         for col in columns:
             Q1 = df[col].quantile(0.25)
@@ -32,17 +36,12 @@ def clean_data(data):
             df = df[(df[col] >= lower_bound) & (df[col] <= upper_bound)]
         return df
 
-    # Get numerical columns to check for outliers
+    # Detect and remove outliers
     numerical_columns = data.select_dtypes(include=[np.number]).columns.tolist()
-    # Clean data by removing outliers
-    data = detect_outliers(data, numerical_columns)
-
+    if numerical_columns:
+        data = detect_outliers(data, numerical_columns)
+    else:
+        print("No numerical columns found for outlier detection.")
+    
     return data
 
-# Example usage:
-try:
-    data = load_data('your_table_name')
-    clean_data = clean_data(data)
-    print(clean_data.head())
-except Exception as e:
-    print(f"Error: {e}")
