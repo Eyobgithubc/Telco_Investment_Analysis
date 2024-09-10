@@ -29,7 +29,7 @@ def identify_top_handsets_per_manufacturer(handsets_data, top_manufacturers):
     top_handsets_per_manufacturer.columns = ['Handset Manufacturer', 'Handset Type', 'Frequency']
     return top_handsets_per_manufacturer
 
-import pandas as pd
+
 from database import get_connection
 
 def load_cleaned_data():
@@ -43,10 +43,7 @@ def load_cleaned_data():
     return data
 
 def aggregate_user_data(data):
-    """
-    Aggregate user data to compute total number of sessions, session duration,
-    total download/upload data, and data volume per application.
-    """
+   
     user_aggregation = data.groupby('MSISDN/Number').agg(
         total_sessions=('Bearer Id', 'count'),
         total_duration_ms=('Dur. (ms)', 'sum'),
